@@ -39,13 +39,12 @@ pipeline {
         }
 
         stage('Docker Login') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    bat '@echo off && echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
-                }
-                bat 'echo Docker login successful >> build-report.txt'
-            }
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            bat '@echo off && echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
         }
+    }
+}
 
         stage('Docker Push') {
             steps {
