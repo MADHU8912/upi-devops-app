@@ -6,24 +6,23 @@ pipeline {
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Login') {
             steps {
-                bat 'docker build -t %IMAGE% .'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat '@echo off && echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                }
             }
         }
 
-        stage('Docker Login') {
+        stage('Docker Build') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    bat '@echo off && echo %PASS% | docker login -u %USER% --password-stdin'
-                }
+                bat 'docker build -t %IMAGE% .'
             }
         }
 
@@ -39,21 +38,20 @@ pipeline {
             }
         }
 
-        stage('Run Container (Test)') {
+        stage('Run Container Test') {
             steps {
                 bat 'docker rm -f upi-test || exit 0'
                 bat 'docker run -d -p 5001:5000 --name upi-test %IMAGE%'
             }
         }
-
     }
 
     post {
         success {
-            echo 'SUCCESS: Build + Push + Pull + Run completed'
+            echo 'SUCCESS: Build, login, push, pull, run completed'
         }
         failure {
-            echo 'FAILED: Check Docker Login credentials'
+            echo 'FAILED: Check GitHub or Docker Hub credentials'
         }
     }
 }
