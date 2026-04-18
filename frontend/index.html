@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UPI Payment App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>UPI Payment App</h1>
+
+    <div class="card">
+      <h2>Send Money</h2>
+      <input type="text" id="sender" placeholder="Sender Name" />
+      <input type="text" id="receiver" placeholder="Receiver Name" />
+      <input type="number" id="amount" placeholder="Amount" />
+      <button onclick="sendMoney()">Pay Now</button>
+      <p id="message"></p>
+    </div>
+
+    <div class="card">
+      <h2>Transaction History</h2>
+      <button onclick="loadTransactions()">Load Transactions</button>
+      <ul id="transactions"></ul>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
