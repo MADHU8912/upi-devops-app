@@ -6,8 +6,6 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = 'nikhilabba12/upi-app'
-        IMAGE_TAG = 'latest'
         FULL_IMAGE = 'nikhilabba12/upi-app:latest'
     }
 
@@ -20,13 +18,8 @@ pipeline {
 
         stage('Check Files') {
             steps {
-                bat 'echo Current directory:'
-                bat 'cd'
-                bat 'echo Root files:'
                 bat 'dir'
-                bat 'echo Backend files:'
                 bat 'dir backend'
-                bat 'echo Frontend files:'
                 bat 'dir frontend'
             }
         }
@@ -34,10 +27,7 @@ pipeline {
         stage('Start Report') {
             steps {
                 bat 'echo Build started > build-report.txt'
-                bat 'echo Project: UPI DevOps App >> build-report.txt'
                 bat 'echo Image: %FULL_IMAGE% >> build-report.txt'
-                bat 'echo Checkout completed >> build-report.txt'
-                bat 'echo File check completed >> build-report.txt'
             }
         }
 
@@ -80,12 +70,9 @@ pipeline {
     }
 
     post {
-        success {
-            echo 'Pipeline finished successfully'
-        }
         failure {
             bat 'echo Pipeline failed > build-report.txt'
-            bat 'echo Check Jenkins console output for failed stage >> build-report.txt'
+            bat 'echo Check Docker Hub credential dockerhub-creds >> build-report.txt'
         }
         always {
             archiveArtifacts artifacts: 'build-report.txt', fingerprint: true
