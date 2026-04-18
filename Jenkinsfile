@@ -1,9 +1,13 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
+
     environment {
         IMAGE_NAME = 'nikhilabba12/upi-app'
-        IMAGE_TAG  = 'latest'
+        IMAGE_TAG = 'latest'
         FULL_IMAGE = 'nikhilabba12/upi-app:latest'
     }
 
@@ -16,7 +20,7 @@ pipeline {
 
         stage('Check Files') {
             steps {
-                bat 'echo Current folder:'
+                bat 'echo Current directory:'
                 bat 'cd'
                 bat 'echo Root files:'
                 bat 'dir'
@@ -27,18 +31,20 @@ pipeline {
             }
         }
 
-        stage('Build Report') {
+        stage('Start Report') {
             steps {
                 bat 'echo Build started > build-report.txt'
                 bat 'echo Project: UPI DevOps App >> build-report.txt'
                 bat 'echo Image: %FULL_IMAGE% >> build-report.txt'
-                bat 'echo Docker build stage starting >> build-report.txt'
+                bat 'echo Checkout completed >> build-report.txt'
+                bat 'echo File check completed >> build-report.txt'
             }
         }
 
         stage('Docker Build') {
             steps {
                 bat 'docker build -t %FULL_IMAGE% .'
+                bat 'echo Docker build successful >> build-report.txt'
             }
         }
 
@@ -47,40 +53,42 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     bat '@echo off && echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
                 }
+                bat 'echo Docker login successful >> build-report.txt'
             }
         }
 
         stage('Docker Push') {
             steps {
                 bat 'docker push %FULL_IMAGE%'
+                bat 'echo Docker push successful >> build-report.txt'
             }
         }
 
         stage('Docker Pull Test') {
             steps {
                 bat 'docker pull %FULL_IMAGE%'
+                bat 'echo Docker pull successful >> build-report.txt'
             }
         }
 
-        stage('Update Report') {
+        stage('Final Report') {
             steps {
-                bat 'echo Docker login successful >> build-report.txt'
-                bat 'echo Docker push successful >> build-report.txt'
-                bat 'echo Docker pull successful >> build-report.txt'
                 bat 'echo Pipeline completed successfully >> build-report.txt'
+                bat 'type build-report.txt'
             }
         }
     }
 
     post {
-        always {
-            archiveArtifacts artifacts: 'build-report.txt', fingerprint: true
-        }
         success {
-            echo 'Jenkins pipeline completed successfully'
+            echo 'Pipeline finished successfully'
         }
         failure {
-            echo 'Jenkins pipeline failed'
+            bat 'echo Pipeline failed > build-report.txt'
+            bat 'echo Check Jenkins console output for failed stage >> build-report.txt'
+        }
+        always {
+            archiveArtifacts artifacts: 'build-report.txt', fingerprint: true
         }
     }
 }
