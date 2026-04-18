@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000";
+const API_URL = "https://your-render-app.onrender.com";
 
 async function sendMoney() {
   const sender = document.getElementById("sender").value;
